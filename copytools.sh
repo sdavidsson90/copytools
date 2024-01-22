@@ -26,7 +26,7 @@ cpfc() {
 cpfp() {
   filepath=$(realpath -z $1)
   echo -n $filepath | copy
-  echo -e "\e[1mCopied to clipboard:\e[0m $filepath"
+  echo -e "\e[1mCopied the following clipboard:\e[0m\n$filepath"
 }
 
 
@@ -79,7 +79,7 @@ pfp() {
     [Yy]) 
         FILE=$(paste)
         cp -r $FILE . 2>/dev/null && \
-        echo -e "\nPasted to current directory!" || \
+        echo -e "\nSuccesfully pasted $FILENAME to current directory!" || \
         echo -e "\nSomething went wrong:" && \
         cp -r $FILE .
       ;;
