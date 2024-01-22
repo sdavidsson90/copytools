@@ -20,8 +20,8 @@ source $LOCATION/copytools.sh
 ```
 
 ### Compatibility
-- This is a simple shell script compatible with:
-    - ZSH
-    - Bash
-    - MacOS
-    - Linux Desktops (using X11) - not headless servers
+This is a simple shell script compatible with:
+- ZSH
+- Bash
+- MacOS
+- Linux Desktops (using X11) - not headless servers
