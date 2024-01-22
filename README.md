@@ -10,4 +10,5 @@
 ### Compatibility
 - ZSH
 - Bash
-- This will not work on headless servers, since the copybuffer is a feature of the display server.
+- MacOS
+- Linux Desktop (with X11) - not headless servers
