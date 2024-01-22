@@ -110,9 +110,12 @@ mvf() {
   case $RESPONSE in
     [Yy]) 
         FILE=$(paste)
-        mv -f $FILE . 2>/dev/null && \
-        echo -e "\nSuccesfully moved $FILENAME to current directory!" || \
-        echo -e "\nSomething went wrong" && return 1
+        if mv -f $FILE . 2> /dev/null; then
+          echo -e "\nSuccesfully moved $FILENAME to current directory!"
+        else
+          echo -e "\nSomething went wrong"
+          mv $FILE . 2>&1 >/dev/null
+        fi
       ;;
     [Nn])
       echo -e "\nNo action taken!"
