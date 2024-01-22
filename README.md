@@ -7,8 +7,8 @@ These functions will allow you to copy something and drop it off somewehere else
 - `cpwd`: copy working directory
 - `cpfc`: copy file contents
 - `cpfp`: copy file path
-- `p`: paste from clipboard as string
-- `pp`: paste string from clipboard and execute as command
+- `p`: paste clipboard content as string
+- `pp`: execute clipboard content as a command
 - `pfp`: paste file path
 
 #### How do I use them? 
