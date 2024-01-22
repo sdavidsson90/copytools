@@ -32,7 +32,7 @@ cpfp() {
 }
 
 
-# Paste clipboard content as string
+# Paste clipboard content to stdout
 p() { paste }
 
 
@@ -111,8 +111,8 @@ mvf() {
     [Yy]) 
         FILE=$(paste)
         mv -f $FILE . 2>/dev/null && \
-        echo -e "Succesfully moved $FILENAME to current directory!" || \
-        echo -e "Something went wrong" && return 1
+        echo -e "\nSuccesfully moved $FILENAME to current directory!" || \
+        echo -e "\nSomething went wrong" && return 1
       ;;
     [Nn])
       echo -e "\nNo action taken!"

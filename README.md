@@ -9,7 +9,7 @@ The idea is that you should not have to spell out the full path to a file in a s
 - `cpwd`: copy working directory
 - `cpfc`: copy file contents
 - `cpfp`: copy file path
-- `p`: paste clipboard content as string
+- `p`: paste clipboard content to stdout
 - `pp`: execute clipboard content as a command
 - `pf`: paste file to current working directory
 - `mvf`: move file to current working directory
