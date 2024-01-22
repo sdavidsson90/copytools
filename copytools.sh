@@ -12,7 +12,7 @@ fi
 
 # Copy working directory
 cpwd() {
-  printf $(dirs) | copy && \
+  echo -n $(dirs) | copy && \
   echo -e "\e[1mCopied working directory!\e[0m"
 }
 
@@ -64,9 +64,8 @@ pp() {
   esac
 }
 
-
-# Paste file path
-pfp() {
+# Paste file to current location
+pf() {
   FILENAME=$(basename $(paste))
   if [ -e $FILENAME ]; then
     echo -en "\e[1m$FILENAME already exists! Do you wish to overwrite? [Y/n]:\e[0m "
@@ -84,6 +83,36 @@ pfp() {
         echo -e "\nSuccesfully pasted $FILENAME to current directory!" || \
         echo -e "\nSomething went wrong:" && \
         cp -r $FILE .
+      ;;
+    [Nn])
+      echo -e "\nNo action taken!"
+      ;;
+    *)
+      echo -e "\nInvalid response!"
+      return 1
+      ;;
+  esac
+}
+
+
+# Move file to 
+mvf() {
+  FILENAME=$(basename $(paste))
+  if [ -e $FILENAME ]; then
+    echo -en "\e[1m$FILENAME already exists! Do you wish to overwrite? [Y/n]:\e[0m "
+    local response=$(bash -c "read -n 1 response; echo \$response")
+  fi
+  if [ ! -z $response ]; then
+    local RESPONSE=$response
+  else
+    local RESPONSE='Y'
+  fi
+  case $RESPONSE in
+    [Yy]) 
+        FILE=$(paste)
+        mv -f $FILE . 2>/dev/null && \
+        echo -e "Succesfully moved $FILENAME to current directory!" || \
+        echo -e "Something went wrong" && return 1
       ;;
     [Nn])
       echo -e "\nNo action taken!"
