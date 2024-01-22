@@ -7,6 +7,7 @@ elif [ $(uname) = "Linux" ]; then
   paste() { xsel -ob }
 fi
 
+
 # Copy working directory
 cpwd() {
   printf $(dirs) | copy && \
@@ -24,7 +25,7 @@ cpfc() {
 
 # Copy filepath
 cpfp() {
-  filepath=$(realpath -z $1)
+  filepath=$(realpath -z $@)
   echo -n $filepath | copy
   echo -e "\e[1mCopied the following clipboard:\e[0m\n$filepath"
 }
