@@ -12,16 +12,17 @@ These functions will allow you to copy something and drop it off somewehere else
 - `pfp`: paste file path
 
 #### How do I use them? 
-Assuming that $LOCATION is the location of the script on your system
-Add this line to your `.bashrc`/`.zshrc`:
+Assuming that $LOCATION is the location of the script on your system, add this line to your `.bashrc`/`.zshrc`:
 
 ```
 source $LOCATION/copytools.sh
 ```
 
 ### Compatibility
-This is a simple shell script compatible with:
-- ZSH
-- Bash
-- MacOS
-- Linux Desktops (using X11) - not headless servers
+This shell script is compatible with:
+- Operating systems: 
+    - MacOS
+    - Linux desktops with X11 (headless Linux servers are not supported)
+- Shells: 
+    - Bash
+    - ZSH

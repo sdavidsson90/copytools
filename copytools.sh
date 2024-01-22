@@ -1,19 +1,20 @@
-# System check
-if [ $(uname) = "Darwin" ]; then
+# Identify clipboard tool
+if command -v pbcopy &> /dev/null; then
   copy() { pbcopy }
   paste() { pbpaste }
-elif [ $(uname) = "Linux" ]; then
+elif command -v xsel &> /dev/null; then
   copy() { xsel -ib }
   paste() { xsel -ob }
+else
+  echo "It seems you don't have a supported clipboard tool!"
+  return 1
 fi
-
 
 # Copy working directory
 cpwd() {
   printf $(dirs) | copy && \
-  echo -e "\e[1mCopied working directory\e[0m"
+  echo -e "\e[1mCopied working directory!\e[0m"
 }
-
 
 # Copy file contents
 cpfc() {
@@ -25,17 +26,17 @@ cpfc() {
 
 # Copy filepath
 cpfp() {
-  filepath=$(realpath -z $@)
-  echo -n $filepath | copy
-  echo -e "\e[1mCopied the following clipboard:\e[0m\n$filepath"
+  filepath=$(realpath $1)
+  echo $filepath | copy
+  echo -e "\e[1mCopied the following to clipboard:\e[0m\n$filepath"
 }
 
 
-# Paste as string
+# Paste clipboard content as string
 p() { paste }
 
 
-# Execute string in copybuffer as command
+# Execute clipboard content as command
 pp() {
   echo -e "\e[1mClipboard content:\e[0m $(paste)"
   echo -en "\e[1mDo you want to execute this as a command? [Y/n]:\e[0m "
@@ -64,7 +65,7 @@ pp() {
 }
 
 
-# Paste to directory
+# Paste file path
 pfp() {
   FILENAME=$(basename $(paste))
   if [ -e $FILENAME ]; then
