@@ -38,7 +38,7 @@ p() { paste }
 
 # Execute clipboard content as command
 pp() {
-  echo -e "\e[1mClipboard content:\e[0m $(paste)"
+  echo -e "\e[1mClipboard content:\e[0m\n$(paste)"
   echo -en "\e[1mDo you want to execute this as a command? [Y/n]:\e[0m "
   local response=$(bash -c "read -n 1 response; echo \$response")
   if [ ! -z $response ]; then
@@ -95,7 +95,7 @@ pf() {
 }
 
 
-# Move file to 
+# Move file to current directory (experimental)
 mvf() {
   FILENAME=$(basename $(paste))
   if [ -e $FILENAME ]; then
