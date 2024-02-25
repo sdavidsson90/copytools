@@ -84,7 +84,7 @@ pf() {
     FILENAME=$(basename $FILE)
     echo -n $FILE
     if [ -e $FILENAME ]; then
-      echo -e "\nThis file already exists! Do you wish to overwrite? [Y/n]:"
+      echo -en "\nThis file already exists! Do you wish to overwrite? [Y/n]:"
       local response=$(bash -c "read -n 1 response; echo \$response")
     fi
     if [ ! -z $response ]; then
