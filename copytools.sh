@@ -1,4 +1,3 @@
-# Identify clipboard tool
 if command -v pbcopy &> /dev/null; then
   copy() { 
     pbcopy
@@ -14,22 +13,19 @@ elif command -v xsel &> /dev/null; then
     xsel -ob
   }
 else
-  echo "It seems you don't have a supported clipboard tool!"
-  return 1
+  copy() {
+    CLIPBOARD="$@"
+  }
+  paste() {
+    echo "$@"
+  }
 fi
 
 # Copy working directory
 cpwd() {
-  echo -n "$(dirs)/" | copy && \
+  echo "$(dirs)/" | copy && \
   echo -e "\e[1mCopied working directory:\e[0m"
   paste
-}
-
-# Copy file contents
-cpfc() {
-  cat "$@" | copy && \
-  echo -en "\e[1mCopied content of: \e[0m"
-  echo $@
 }
 
 # Copy filepath
@@ -42,13 +38,20 @@ cpfp() {
     FILEPATHS+=" "
     echo $file| sed 's/ /\n/'
   done
-  printf '%s' "${FILEPATHS[@]}"|copy
+  echo "${FILEPATHS[@]}"|copy
 }
 
-# Paste clipboard content to stdout
+# Copy file contents
+cpfc() {
+  cat "$@" | copy && \
+  echo -en "\e[1mCopied content of: \e[0m"
+  echo $@
+}
+
+# paste
 p() { paste }
 
-# Paste and execute as command
+# Paste and execute (as command)
 px() {
   echo -e "\e[1mClipboard content:\e[0m\n$(paste)"
   echo -en "\e[1mDo you want to execute this as a command? [Y/n]:\e[0m "
@@ -109,7 +112,6 @@ pf() {
   done
 }
 
-
 # Move file to current directory (experimental)
 mvf() {
   FILENAME=$(basename $(paste))
@@ -138,4 +140,3 @@ mvf() {
       ;;
   esac
 }
-
