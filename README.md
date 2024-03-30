@@ -14,7 +14,6 @@ The idea is that you should not have to spell out the full path to a file in a s
 - `cpwd`: copy working directory
 - `cpfc`: copy file contents
 - `p`: paste clipboard content to stdout
-- `px`: execute clipboard content as a command
 
 #### How do I use them? 
 Assuming that $LOCATION is the location of the script on your system, add this line to your `.bashrc`/`.zshrc`:

@@ -15,7 +15,6 @@ elif command -v xsel &> /dev/null; then   # Linux
     xsel -ob
   }
 fi
-# ------------------------------------------
 
 
 # ==========================================
@@ -25,7 +24,6 @@ cpwd() {
   echo -e "\e[1mCopied working directory:\e[0m"
   paste
 }
-# ------------------------------------------
 
 
 # ==========================================
@@ -55,7 +53,6 @@ cpfp() {
     done
   fi
 }
-# ------------------------------------------
 
 
 # ==========================================
@@ -65,47 +62,16 @@ cpfc() {
   echo -en "\e[1mCopied content of: \e[0m"
   echo $@
 }
-# ------------------------------------------
 
 
 # ==========================================
 # Paste
 p() { echo $(paste) }
-# ------------------------------------------
 
-# ==========================================
-# Paste and execute (as command)
-px() {
-  echo -e "\e[1mClipboard content:\e[0m\n$(paste)"
-  echo -en "\e[1mDo you want to execute this as a command? [Y/n]:\e[0m "
-  local response=$(bash -c "read -n 1 response; echo \$response")
-  if [ ! -z $response ]; then
-    local RESPONSE=$response
-  else
-    local RESPONSE='Y'
-  fi
-  case $RESPONSE in
-    [Yy])
-      echo $(paste)
-      if ! eval $(paste) 2>/dev/null; then
-        echo "Not a valid command"
-        return 1
-      fi
-      ;;
-    [Nn])
-      echo -e "\nNo action taken!"
-      ;;
-    *)
-      echo -e "\nInvalid response!"
-      return 1
-      ;;
-  esac
-}
 
 # ==========================================
 # Paste file to current location
 pf() {
-  IFS=$'\n'
   filepaths="$(paste)"
   echo -e "\e[1mPasting files:\e[0m"
   for FILE in $(echo $filepaths); do
@@ -137,10 +103,10 @@ pf() {
   done
 }
 
+
 # ==========================================
-# Move file to current directory (experimental)
+# Move file to current directory
 mvf() {
-  IFS=$'\n'
   filepaths="$(paste)"
   echo -e "\e[1mMoving files:\e[0m"
   for FILE in $(echo $filepaths); do
