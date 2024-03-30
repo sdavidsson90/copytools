@@ -1,56 +1,79 @@
-if command -v pbcopy &> /dev/null; then
+# ==========================================
+# Identify clipboard tool
+if command -v pbcopy &> /dev/null; then   # MacOS
   copy() { 
     pbcopy
   }
   paste() { 
     pbpaste
   }
-elif command -v xsel &> /dev/null; then
+elif command -v xsel &> /dev/null; then   # Linux
   copy() { 
     xsel -ib
   }
   paste() { 
     xsel -ob
   }
-else
-  copy() {
-    CLIPBOARD="$@"
-  }
-  paste() {
-    echo "$@"
-  }
 fi
+# ------------------------------------------
 
+
+# ==========================================
 # Copy working directory
 cpwd() {
-  echo "$(dirs)/" | copy && \
+  echo "$(pwd)/" | copy && \
   echo -e "\e[1mCopied working directory:\e[0m"
   paste
 }
+# ------------------------------------------
 
+
+# ==========================================
 # Copy filepath
 cpfp() {
-  FILEPATHS=""
-  echo -e "\e[1mCopied filepaths:\e[0m"
+  IFS=$'\n'
+  filepaths=""
+  ignored=""
   for i in "$@"; do
-    file=$(realpath "$i")
-    FILEPATHS+="$file"
-    FILEPATHS+=" "
-    echo $file| sed 's/ /\n/'
+    if [ -e "$i" ]; then
+      file=$(realpath "$i")
+      file=$(echo "$file\n")
+      filepaths+=$(echo -e "\n$file")
+    else
+      ignored+=$(echo "$i \n")
+    fi
   done
-  echo "${FILEPATHS[@]}"|copy
+  echo -e "${filepaths[@]}"|copy
+  if [ ! -z $filepaths ]; then
+    echo -en "\e[1mCopied filepaths:\e[0m"
+    echo $filepaths
+  fi
+  if [ ! -z $ignored ]; then
+    echo -e "\n\e[1mInvalid input:\e[0m"
+    for i in $ignored; do
+      echo -e "$i \n"
+    done
+  fi
 }
+# ------------------------------------------
 
+
+# ==========================================
 # Copy file contents
 cpfc() {
   cat "$@" | copy && \
   echo -en "\e[1mCopied content of: \e[0m"
   echo $@
 }
+# ------------------------------------------
 
-# paste
+
+# ==========================================
+# Paste
 p() { paste }
+# ------------------------------------------
 
+# ==========================================
 # Paste and execute (as command)
 px() {
   echo -e "\e[1mClipboard content:\e[0m\n$(paste)"
@@ -79,15 +102,17 @@ px() {
   esac
 }
 
+# ==========================================
 # Paste file to current location
 pf() {
-  FILEPATHS="$(paste)"
+  IFS=$'\n'
+  filepaths="$(paste)"
   echo -e "\e[1mPasting files:\e[0m"
-  for FILE in $(echo $FILEPATHS); do
-    FILENAME=$(basename $FILE)
-    echo -n $FILE
-    if [ -e $FILENAME ]; then
-      echo -en "\nThis file already exists! Do you wish to overwrite? [Y/n]:"
+  for FILE in $(echo $filepaths); do
+    FILENAME=$(basename "$FILE")
+    echo -n "$FILE"
+    if [ -e "$FILENAME" ]; then
+      echo -en "\n  This file already exists! Do you wish to overwrite? [Y/n]:"
       local response=$(bash -c "read -n 1 response; echo \$response")
     fi
     if [ ! -z $response ]; then
@@ -112,31 +137,38 @@ pf() {
   done
 }
 
+# ==========================================
 # Move file to current directory (experimental)
 mvf() {
-  FILENAME=$(basename $(paste))
-  if [ -e $FILENAME ]; then
-    echo -en "\e[1m$FILENAME already exists! Do you wish to overwrite? [Y/n]:\e[0m "
-    local response=$(bash -c "read -n 1 response; echo \$response")
-  fi
-  if [ ! -z $response ]; then
-    local RESPONSE=$response
-  else
-    local RESPONSE='Y'
-  fi
-  case $RESPONSE in
-    [Yy]) 
-        FILE=$(paste)
-        mv -f $FILE . 2> /dev/null && \
-        echo -e "\nSuccesfully moved $FILENAME to current directory!" || \
-        echo -e "\nSomething went wrong"
-      ;;
-    [Nn])
-      echo -e "\nNo action taken!"
-      ;;
-    *)
-      echo -e "\nInvalid response!"
-      return 1
-      ;;
-  esac
+  IFS=$'\n'
+  filepaths="$(paste)"
+  echo -e "\e[1mMoving files:\e[0m"
+  for FILE in $(echo $filepaths); do
+    FILENAME=$(basename "$FILE")
+    echo -n "$FILE"
+    if [ -e "$FILENAME" ]; then
+      echo -en "\n  This file already exists! Do you wish to overwrite? [Y/n]:"
+      local response=$(bash -c "read -n 1 response; echo \$response")
+    fi
+    if [ ! -z $response ]; then
+      local RESPONSE=$response
+    else
+      local RESPONSE='Y'
+    fi
+    case $RESPONSE in
+      [Yy])
+        cp -r $FILE . 2>/dev/null && \
+        rm -rf $FILE && \
+          echo " ✓" || \
+          echo " ✘"
+        ;;
+      [Nn])
+        echo " ✘"
+        ;;
+      *)
+        echo -e "\nInvalid response!"
+        return 1
+        ;;
+    esac
+  done
 }
