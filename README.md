@@ -28,5 +28,5 @@ This shell script is compatible with:
     - MacOS
     - Linux desktops with X11 (headless Linux servers are not supported)
 - Shells: 
-    - Bash
+    - <s>Bash</s> (broken)
     - ZSH
