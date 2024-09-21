@@ -20,123 +20,243 @@ fi
 # ==========================================
 # Copy working directory
 cpwd() {
-  echo "$(pwd)/" | copy && \
+  echo -n "$PWD/" | copy
   echo -e "\e[1mCopied working directory:\e[0m"
   paste
 }
 
 
 # ==========================================
-# Copy filepath
 cpfp() {
-  IFS=$'\n'
-  filepaths=""
-  ignored=""
+
+  if [ -z "$1" ]; then
+    echo "No arguments given!"
+    return 1
+  fi
+
+  # Prepare the copying
   for i in "$@"; do
     if [ -e "$i" ]; then
-      file=$(realpath "$i")
-      file=$(echo "$file\n")
-      filepaths+=$(echo -e "\n$file")
+      file_path+=$(realpath "$i")
+      file_path+=" "
     else
-      ignored+=$(echo "$i \n")
+      ignored+=$i
+      ignored+=" "
     fi
   done
-  echo -e "${filepaths[@]}"|copy
-  if [ ! -z $filepaths ]; then
-    echo -en "\e[1mCopied filepaths:\e[0m"
-    echo $filepaths
+
+  # Print actions
+  if [ ! -z "$file_path" ]; then
+    echo "$file_path" | copy &&
+    echo -e "\e[1mCopied filepaths:\e[0m"
+    echo -n "$file_path" | tr ' ' '\n'
+
+    #  Print newline before printing invalid input
+    if [ -n "$ignored" ]; then
+      echo ""
+    fi
   fi
-  if [ ! -z $ignored ]; then
-    echo -e "\n\e[1mInvalid input:\e[0m"
-    for i in $ignored; do
-      echo -e "$i \n"
-    done
+
+  if [ -n "$ignored" ]; then
+    echo -e "\e[1mInvalid input:\e[0m"
+    echo -n "$ignored" | tr ' ' '\n'
   fi
+
+  unset file_path ignored
 }
 
 
 # ==========================================
 # Copy file contents
 cpfc() {
-  cat "$@" | copy && \
-  echo -en "\e[1mCopied content of: \e[0m"
-  echo $@
+ 
+  # Only proceed if a target file is provided
+  if [ -z "$1" ]; then
+    echo "No arguments given!"
+    return 1
+  fi
+
+  # Read in the file contents
+  for i in "$@"; do
+
+    if file -Ib "$i" | grep 'text' > /dev/null 2>&1; then
+      file_name+="$i"
+      file_name+=" "
+      file_contents+=$(cat "$i")
+      file_contents+="\n"
+    else
+      ignored+="$i"
+      ignored+=" "
+    fi
+
+  done
+
+  # Do the copy action and verify the paths of the copied files
+  if [ ! -z $file_contents ]; then
+    echo "$file_contents" | copy &&
+    echo -e "\e[1mCopied file contents of:\e[0m"
+    echo -n $file_name | tr ' ' '\n'
+    
+    #  Print newline before printing invalid input
+    if [ -n "$ignored" ]; then
+      echo -e " "
+    fi
+  fi
+
+  if [ -n "$ignored" ]; then
+    echo -e "\e[1mInvalid input (likely not a plain text file):\e[0m"
+    echo -n "$ignored" | tr ' ' '\n'
+  fi
+
+  unset file_contents file_name ignored
 }
 
 
 # ==========================================
 # Paste
-p() { 
-  echo $(paste)
-}
-
+alias p=paste
 
 # ==========================================
-# Paste file to current location
+
 pf() {
-  filepaths="$(paste)"
-  echo -e "\e[1mPasting files:\e[0m"
-  for FILE in $(echo $filepaths); do
-    FILENAME=$(basename "$FILE")
-    echo -n "$FILE"
-    if [ -e "$FILENAME" ]; then
-      echo -en "\n  This file already exists! Do you wish to overwrite? [Y/n]:"
-      local response=$(bash -c "read -n 1 response; echo \$response")
+
+  # Print header if clipboard contains a valid filepath
+  for i in $(paste); do
+    if [ -e "$i" ]; then
+      echo -e "\e[1mPasting files:\e[0m"
+      break
     fi
-    if [ ! -z $response ]; then
-      local RESPONSE=$response
-    else
-      local RESPONSE='Y'
-    fi
-    case $RESPONSE in
-      [Yy])
-        cp -r $FILE . 2>/dev/null && \
-          echo " ✓" || \
-          echo " ✘"
-        ;;
-      [Nn])
-        echo " ✘"
-        ;;
-      *)
-        echo -e "\nInvalid response!"
-        return 1
-        ;;
-    esac
+    echo "Could not find any valid filepaths in clipboard!"
+    return 1
   done
+
+  for i in $(paste); do 
+
+    if [ ! -e "$i" ]; then
+      ignored+="$i"
+      ignored+=" "
+    else
+      # Print filename
+      echo -n "$i"
+
+      # Check if filename exists in this location.
+      # If so; ask if the existing file should be replaced.
+      if [ -e $(basename "$i") ]; then
+
+        echo -e "\n  A file with this name already exists in this location!"
+        echo -n "  Do you wish to overwrite? [Y/n]: "
+
+          response=$(bash -c "read -n 1 response; echo -n \$response")
+          
+          if [ -z $response ]; then 
+            response="Y"
+          fi
+
+          while [[ ! $response =~ ^[YyNn]$ ]]; do
+            echo -en "\n  Invalid response! Try again! [Y/n]: "
+            response=$(bash -c "read -n 1 response; echo -n \$response")
+
+            # If input is 'enter' accept as 'Y'
+            if [ -z "$response" ]; then 
+              response="Y"
+            fi
+          done
+
+          case $response in
+            [Yy])
+              cp "$i" . 2> /dev/null && echo " [✓]" || echo " [x]"
+              echo ""
+              ;;
+            [Nn])
+              echo " [x]"
+              echo ""
+              ;;
+          esac
+
+          unset response
+
+        elif [ ! -e $(basename "$i") ]; then
+        cp "$i" . 2> /dev/null && echo " [✓]" || echo " [x]"
+      fi
+    fi
+  done
+      
+  if [ -n "$ignored" ]; then
+    echo -e "\e[1mInvalid filepaths:\e[0m"
+    echo "$ignored"
+    unset ignored
+  fi
 }
 
 
 # ==========================================
 # Move file to current directory
+#
+
 mvf() {
-  filepaths="$(paste)"
-  echo -e "\e[1mMoving files:\e[0m"
-  for FILE in $(echo $filepaths); do
-    FILENAME=$(basename "$FILE")
-    echo -n "$FILE"
-    if [ -e "$FILENAME" ]; then
-      echo -en "\n  This file already exists! Do you wish to overwrite? [Y/n]:"
-      local response=$(bash -c "read -n 1 response; echo \$response")
+
+  # Print header if clipboard contains a valid filepath
+  for i in $(paste); do
+    if [ -e "$i" ]; then
+      echo -e "\e[1mPasting files:\e[0m"
+      break
     fi
-    if [ ! -z $response ]; then
-      local RESPONSE=$response
-    else
-      local RESPONSE='Y'
-    fi
-    case $RESPONSE in
-      [Yy])
-        cp -r $FILE . 2>/dev/null && \
-        rm -rf $FILE && \
-          echo " ✓" || \
-          echo " ✘"
-        ;;
-      [Nn])
-        echo " ✘"
-        ;;
-      *)
-        echo -e "\nInvalid response!"
-        return 1
-        ;;
-    esac
+    echo "Could not find any valid filepaths in clipboard!"
+    return 1
   done
+
+  for i in $(paste); do 
+
+    if [ ! -e "$i" ]; then
+      ignored+="$i"
+      ignored+=" "
+    else
+      # Print filename
+      echo -n "$i"
+
+      # Check if filename exists in this location.
+      # If so; ask if the existing file should be replaced.
+      if [ -e $(basename "$i") ]; then
+
+        echo -e "\n  A file with this name already exists in this location!"
+        echo -n "  Do you wish to overwrite? [Y/n]: "
+
+          response=$(bash -c "read -n 1 response; echo -n \$response")
+          
+          if [ -z "$response" ]; then 
+            response="Y"
+          fi
+
+          while [[ ! $response =~ ^[YyNn]$ ]]; do
+            echo -en "\n  Invalid response! Try again! [Y/n]: "
+            response=$(bash -c "read -n 1 response; echo -n \$response")
+
+            # If input is 'enter' accept as 'Y'
+            if [ -z "$response" ]; then 
+              response="Y"
+            fi
+          done
+
+          case "$response" in
+            [Yy])
+              cp -r "$i" . 2> /dev/null && rm -rf "$i" && echo " [✓]" || echo " [x]"
+              echo ""
+              ;;
+            [Nn])
+              echo " [x]"
+              echo ""
+              ;;
+          esac
+
+        elif [ ! -e $(basename "$i") ]; then
+        cp -r "$i" . 2> /dev/null && rm -rf "$i" && echo " [✓]" || echo " [x]"
+      fi
+    fi
+  done
+      
+  if [ -n "$ignored" ]; then
+    echo -e "\e[1mInvalid filepaths:\e[0m"
+    echo "$ignored"
+    unset ignored
+  fi
 }
