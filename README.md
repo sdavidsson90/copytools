@@ -26,7 +26,7 @@ source $LOCATION/copytools.sh
 This shell script is compatible with:
 - Operating systems: 
     - MacOS
-    - Linux desktops with X11 (headless Linux servers are not supported)
+    - Linux desktops with X11 or Xwayland (headless Linux servers are not supported)
 - Shells: 
-    - <s>Bash</s> (broken)
     - ZSH
+    - Bash
