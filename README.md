@@ -18,7 +18,7 @@ A copy action done in the CLI will be paste-able in a GUI (and vice versa).
 - `p`: paste clipboard content to stdout
 
 #### How do I use them? 
-Assuming that $LOCATION is the location of the script on your system, add this line to your `.bashrc`/`.zshrc`:
+Assuming that `$LOCATION` is the location of the script on your system, add this line to your `.bashrc`/`.zshrc`:
 
 ```
 source $LOCATION/copytools.sh
