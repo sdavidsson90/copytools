@@ -1,9 +1,11 @@
 # COPY TOOLS
 
 #### What problem does this solve?
-These functions will allow you to copy something and drop it off somewehere else. 
+These functions will allow you to copy something and drop it off somewehere else.
 
 The idea is that you should not have to spell out the full path to a file in a single command, but navigate to the file, do the copy action, navigate to a desired location and do the paste action.
+
+A copy action done in the CLI will be paste-able in a GUI (and vice versa).
 
 #### How would I do that?
 - `cpfp`: copy file path
