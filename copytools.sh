@@ -198,7 +198,7 @@ mvf() {
   # Print header if clipboard contains a valid filepath
   for i in $(paste); do
     if [ -e "$i" ]; then
-      echo -e "\e[1mPasting files:\e[0m"
+      echo -e "\e[1mMoving files:\e[0m"
       break
     fi
     echo "Could not find any valid filepaths in clipboard!"
