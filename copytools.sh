@@ -29,8 +29,9 @@ cpwd() {
 # ==========================================
 cpfp() {
 
+  # If no arguments are given; stop and return error
   if [ -z "$1" ]; then
-    echo "No arguments given!"
+    echo "No target files provided!"
     return 1
   fi
 
@@ -38,10 +39,10 @@ cpfp() {
   for i in "$@"; do
     if [ -e "$i" ]; then
       file_path+=$(realpath "$i")
-      file_path+=" "
+      file_path+=$'\n'
     else
       ignored+=$i
-      ignored+=" "
+      ignored+=$'\n'
     fi
   done
 
@@ -49,7 +50,7 @@ cpfp() {
   if [ ! -z "$file_path" ]; then
     echo "$file_path" | copy &&
     echo -e "\e[1mCopied filepaths:\e[0m"
-    echo -n "$file_path" | tr ' ' '\n'
+    echo -n "$file_path"
 
     #  Print newline before printing invalid input
     if [ -n "$ignored" ]; then
@@ -57,9 +58,10 @@ cpfp() {
     fi
   fi
 
+
   if [ -n "$ignored" ]; then
     echo -e "\e[1mInvalid input:\e[0m"
-    echo -n "$ignored" | tr ' ' '\n'
+    echo -n "$ignored" 
   fi
 
   unset file_path ignored
@@ -70,9 +72,9 @@ cpfp() {
 # Copy file contents
 cpfc() {
  
-  # Only proceed if a target file is provided
+  # If no arguments are given; stop and return error
   if [ -z "$1" ]; then
-    echo "No arguments given!"
+    echo "No target files provided!"
     return 1
   fi
 
@@ -89,7 +91,7 @@ cpfc() {
     fi
   done
 
-  # Do the copy action and verify the paths of the copied files
+  # Do the copy action and print paths of target files
   if [ ! -z "$file_contents" ]; then
     printf "%s" "$file_contents" | copy
     echo -e "\e[1mCopied file contents of:\e[0m"
