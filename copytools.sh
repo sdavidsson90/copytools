@@ -1,5 +1,3 @@
-# Version: 2024-09-21
-
 # ==========================================
 # Identify clipboard tool
 if command -v pbcopy &> /dev/null; then   # MacOS
