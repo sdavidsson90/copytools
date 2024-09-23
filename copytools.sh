@@ -89,8 +89,6 @@ cpfc() {
     fi
   done
 
-  # file_contents=$(printf "%s" "$file_contents")
-
   # Do the copy action and verify the paths of the copied files
   if [ ! -z "$file_contents" ]; then
     printf "%s" "$file_contents" | copy
