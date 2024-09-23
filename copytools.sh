@@ -1,3 +1,5 @@
+# Version: 2024-09-21
+
 # ==========================================
 # Identify clipboard tool
 if command -v pbcopy &> /dev/null; then   # MacOS
@@ -77,35 +79,36 @@ cpfc() {
   fi
 
   # Read in the file contents
-  for i in "$@"; do
-
-    if file -Ib "$i" | grep 'text' > /dev/null 2>&1; then
+  for i in "${@}"; do
+    if ! file -Ib "$i" | grep 'binary' > /dev/null 2>&1; then
       file_name+="$i"
-      file_name+=" "
+      file_name+=$'\n'
       file_contents+=$(cat "$i")
-      file_contents+="\n"
+      file_contents+=$'\n'
     else
       ignored+="$i"
-      ignored+=" "
+      ignored+=$'\n'
     fi
-
   done
 
+  # file_contents=$(printf "%s" "$file_contents")
+
   # Do the copy action and verify the paths of the copied files
-  if [ ! -z $file_contents ]; then
-    echo "$file_contents" | copy &&
+  if [ ! -z "$file_contents" ]; then
+    printf "%s" "$file_contents" | copy
     echo -e "\e[1mCopied file contents of:\e[0m"
-    echo -n $file_name | tr ' ' '\n'
+    printf "%s" "$file_name"
     
-    #  Print newline before printing invalid input
+    # If both valid and invalid input were given; print newline 
     if [ -n "$ignored" ]; then
       echo -e " "
     fi
   fi
-
+  
+  # Print invalid inputs
   if [ -n "$ignored" ]; then
-    echo -e "\e[1mInvalid input (likely not a plain text file):\e[0m"
-    echo -n "$ignored" | tr ' ' '\n'
+    echo -e "\e[1mInvalid input:\e[0m"
+    printf "%s" "$ignored"
   fi
 
   unset file_contents file_name ignored
@@ -117,7 +120,7 @@ cpfc() {
 alias p=paste
 
 # ==========================================
-
+# Paste file(s) to current directory
 pf() {
 
   # Print header if clipboard contains a valid filepath
@@ -190,8 +193,7 @@ pf() {
 
 
 # ==========================================
-# Move file to current directory
-#
+# Move file(s) to current directory
 
 mvf() {
 
@@ -260,3 +262,4 @@ mvf() {
     unset ignored
   fi
 }
+
