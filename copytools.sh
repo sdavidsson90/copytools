@@ -53,9 +53,10 @@ cpfp() {
 
   # Do the copy action and print copied filepaths
   if [ ! -z "$file_path" ]; then
-    echo "$file_path" | copy &&
+    # echo -n "$file_path" | sed '$ s/\ \n$//' | copy &&
+    echo -n "$file_path" | sed -e 's/ *$//' -e '${/^$/d;}' | copy &&
     echo -e "\e[1mCopied filepaths:\e[0m"
-    echo -n "$file_path" | tr ' ' '\n'
+    echo -n "$file_path" | sed '$ s/\n$//' | tr ' ' '\n'
 
     # If both valid and invalid input were given; print newline
     [ -n "$invalid" ] && echo ""
