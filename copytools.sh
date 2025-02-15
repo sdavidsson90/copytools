@@ -43,29 +43,31 @@ cpfp() {
   # Gather file paths and invalid form input
   for i in "$@"; do
     if [ -e "$i" ]; then
-      file_path+=$(realpath "$i")
-      file_path+=' '
+      file_path+="$(realpath $i)"
+      file_path+=" "
     else
       invalid+="$i"
-      invalid+=' '
     fi
   done
 
   # Do the copy action and print copied filepaths
-  if [ ! -z "$file_path" ]; then
-    # echo -n "$file_path" | sed '$ s/\ \n$//' | copy &&
-    echo -n "$file_path" | sed -e 's/ *$//' -e '${/^$/d;}' | copy &&
+  if [ -n "$file_path" ]; then
+    echo -n "$file_path" | copy &&
     echo -e "\e[1mCopied filepaths:\e[0m"
-    echo -n "$file_path" | sed '$ s/\n$//' | tr ' ' '\n'
+    for i in "${file_path[@]}"; do
+      echo "$i" | tr ' ' '\n'
+    done
 
-    # If both valid and invalid input were given; print newline
+    # If both valid and invalid input are to be printed; print newline before invalid
     [ -n "$invalid" ] && echo ""
   fi
 
   # Print invalid inputs
   if [ -n "$invalid" ]; then
     echo -e "\e[1mInvalid input:\e[0m"
-    echo -n "$invalid" | tr ' ' '\n' 
+    for i in "${invalid[@]}"; do
+      echo "$invalid" | tr ' ' '\n'
+    done
   fi
 
   unset file_path invalid
@@ -81,7 +83,7 @@ cpfc() {
 
   # Read in the file contents
   for i in "${@}"; do
-    if [ -f "$i" ]; then
+    if [ -e "$i" ]; then
       file_path+="$i"
       file_path+=$'\n'
       file_contents+=$(cat "$i")
@@ -120,7 +122,6 @@ alias p=paste
 # ==========================================
 # Paste file(s) to current directory
 pf() {
-
   # Print header if clipboard contains a valid filepath
   for i in $(paste); do
     if [ -e "$i" ]; then
@@ -143,39 +144,38 @@ pf() {
       # Check if filename exists in this location.
       # If so; ask if the existing file should be replaced.
       if [ -e $(basename "$i") ]; then
+
         echo -e "\n  A file with this name already exists in this location!"
         echo -n "  Do you wish to overwrite? [Y/n]: "
 
-        response=$(bash -c "read -n 1 response; echo -n \$response")
-
-        if [ -z $response ]; then 
-          response="Y"
-        fi
-
-        while [[ ! $response =~ ^[YyNn]$ ]]; do
-          echo -en "\n  Invalid response! Try again! [Y/n]: "
           response=$(bash -c "read -n 1 response; echo -n \$response")
-          # If input is 'enter' accept as 'Y':
+          
           if [ -z "$response" ]; then 
             response="Y"
           fi
-        done
 
-        case $response in
-          [Yy])
-            cp "$i" . 2> /dev/null && echo " [✓]" || echo " [x]"
-            echo ""
-            ;;
-          [Nn])
-            echo " [x]"
-            echo ""
-            ;;
-        esac
+          while [[ ! $response =~ ^[YyNn]$ ]]; do
+            echo -en "\n  Invalid response! Try again! [Y/n]: "
+            response=$(bash -c "read -n 1 response; echo -n \$response")
+            # If input is 'enter' - accept as 'Y':
+            if [ -z "$response" ]; then
+              response="Y"
+            fi
+          done
 
-        unset response
+          case "$response" in
+            [Yy])
+              cp -r "$i" . 2> /dev/null && echo " [✓]" || echo " [x]"
+              echo ""
+              ;;
+            [Nn])
+              echo " [x]"
+              echo ""
+              ;;
+          esac
 
-      elif [ ! -e $(basename "$i") ]; then
-          cp "$i" . 2> /dev/null && echo " [✓]" || echo " [x]"
+        elif [ ! -e $(basename "$i") ]; then
+        cp -r "$i" . 2> /dev/null && echo " [✓]" || echo " [x]"
       fi
     fi
   done
@@ -185,7 +185,8 @@ pf() {
     echo "$invalid"
     unset invalid
   fi
-}
+
+  }
 
 
 # ==========================================
@@ -255,4 +256,6 @@ mvf() {
     echo "$invalid"
     unset invalid
   fi
+
+  echo "" | copy
 }
