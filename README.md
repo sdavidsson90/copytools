@@ -1,4 +1,4 @@
-# copytools
+# copytools.sh
 
 These functions will allow you to copy something and drop it off somewhere else.
 
