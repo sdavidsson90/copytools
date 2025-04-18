@@ -43,7 +43,6 @@ cpfp() {
   for i in "$@"; do
     if [ -e "$i" ]; then
       file_path[$j]+="$(realpath $i)"
-      file_path[$j]+=" "
       ((j++))
     else
       invalid+="$i"
@@ -192,7 +191,7 @@ pf() {
         response='Y'
         # Delete previous line (empty because user hit enter)
         echo -en "\033[1A\033[2K"
-        echo -n "  Do you wish to overwrite? [Y/n]: Y"
+        echo -n "  Do you wish to overwrite? [Y/n]: y"
       fi
 
       while [[ ! "$response" =~ ^[YyNn]$ ]]; do
@@ -203,7 +202,7 @@ pf() {
           response='Y'
           # Delete previous line (empty because user hit enter)
           echo -en "\033[1A\033[2K"
-          echo -en "  Invalid response! Try again! [Y/n]: Y"
+          echo -en "  Invalid response! Try again! [Y/n]: y"
         fi
       done
 
@@ -240,8 +239,12 @@ pf() {
 # ==========================================
 # Move file(s) to current directory
 mvf() {
+  # Create array from clipboard items
   items=($(pbpaste))
   j=1
+
+  # Clipboard items may filepaths with spaces
+  # We will test this:
   for i in "${items[@]}"; do
     if [[ -e "$i" ]]; then
       if [[ "$i" = '/'* ]]; then
@@ -283,20 +286,19 @@ mvf() {
   done
 
   # Print header if clipboard contains any valid filepath
-  if [[ -n "${valid[@]}" ]]; then
-    echo -e "\e[1mPasting files:\e[0m"
+  if [[ -n "$valid" ]]; then
+    echo -e "\e[1mMoving files:\e[0m"
   else
     echo "Could not find any valid filepaths in clipboard!"
     return 1
   fi
 
   for i in "${valid[@]}"; do
-    item="$i"
-    echo -n "$item"
+    echo -n "$i"
 
     # Check if filename exists in this location.
     # If so; ask if the existing file should be replaced.
-    if [[ -e $(basename "$item") ]]; then
+    if [[ -e $(basename "$i") ]]; then
 
       echo -e "\n  A file with this name already exists in this location!"
       echo -n "  Do you wish to overwrite? [Y/n]: "
@@ -304,7 +306,10 @@ mvf() {
       response=$(bash -c "read -n 1 response; echo -n \$response")
 
       if [ -z "$response" ]; then
-        response="Y"
+        response='Y'
+        # Delete previous line (empty because user hit enter)
+        echo -en "\033[1A\033[2K"
+        echo -n "  Do you wish to overwrite? [Y/n]: y"
       fi
 
       while [[ ! "$response" =~ ^[YyNn]$ ]]; do
@@ -312,7 +317,10 @@ mvf() {
         response=$(bash -c "read -n 1 response; echo -n \$response")
         # If input is 'enter' - accept as 'Y':
         if [ -z "$response" ]; then
-          response="Y"
+          response='Y'
+          # Delete previous line (empty because user hit enter)
+          echo -en "\033[1A\033[2K"
+          echo -en "  Invalid response! Try again! [Y/n]: y"
         fi
       done
 
@@ -327,9 +335,12 @@ mvf() {
         ;;
       esac
 
-    elif [[ ! -e $(basename "$item") ]]; then
+    elif [[ ! -e $(basename "$i") ]]; then
       cp -r "$i" . 2>/dev/null && rm -rf "$i" && echo " [✓]" || echo " [x]"
     fi
+
+    unset response
+
   done
 
   if [ -n "$invalid" ]; then
@@ -340,5 +351,5 @@ mvf() {
     done
   fi
 
-  unset valid possibly invalid j item
+  unset items j valid possibly invalid
 }
