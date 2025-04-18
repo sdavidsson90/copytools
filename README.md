@@ -6,10 +6,6 @@ The idea is that you should not have to spell out the full path(s) of a file in 
 
 The beauty is that the functions work with the system clipboard. A copy action done in the command line will be accessible in a GUI app (and vice versa).
 
-### Demo
-
-![Demoing copytools.sh](./demo/demo.gif)
-
 #### List of available functions
 
 - `cpwd`: copy working directory
@@ -19,6 +15,10 @@ The beauty is that the functions work with the system clipboard. A copy action d
 - `pf`: paste file to current working directory
 - `mvf`: move file to current working directory
 
+#### Demo
+
+![Demoing copytools.sh](./demo/demo.gif)
+
 #### Setup
 
 Assuming that `$LOCATION` is the location of the script on your system, add this line to your `.bashrc`/`.zshrc`:
@@ -27,7 +27,6 @@ Assuming that `$LOCATION` is the location of the script on your system, add this
 source $LOCATION/copytools.sh
 ```
 
-### Compatibility
+#### Compatibility
 
-Bash and ZSH on either MacOS or Linux.
-Headless Linux servers are not supported.
+Bash/ZSH on MacOS/Linux. Headless Linux servers are not supported.
